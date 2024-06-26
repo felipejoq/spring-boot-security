@@ -27,7 +27,7 @@ public class JpaUserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(String.format("User not found with email %s", email));
         }
 
-        User user = userOptional.get();
+        User user = userOptional.orElseThrow();
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
