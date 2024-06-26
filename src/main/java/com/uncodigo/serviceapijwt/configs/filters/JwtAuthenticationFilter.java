@@ -1,8 +1,9 @@
 package com.uncodigo.serviceapijwt.configs.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uncodigo.serviceapijwt.configs.security.CustomUserDetails;
+import com.uncodigo.serviceapijwt.dtos.UserDto;
 import com.uncodigo.serviceapijwt.models.User;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -59,10 +60,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
 
-        org.springframework.security.core.userdetails.User springUser =
-                (org.springframework.security.core.userdetails.User) authResult.getPrincipal();
-        String username = springUser.getUsername();
-        Collection<? extends GrantedAuthority> authorities = springUser.getAuthorities();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
+        String username = customUserDetails.getUsername();
+        Collection<? extends GrantedAuthority> authorities = customUserDetails.getAuthorities();
 
         String token = Jwts.builder()
                 .subject(username)
@@ -72,9 +72,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .issuedAt(ISSUED_AT)
                 .compact();
 
-        Map<String, String> body = new HashMap<>();
+        UserDto userDto = customUserDetails.getUserDto();
+
+        Map<String, Object> body = new HashMap<>();
         body.put("token", token);
-        body.put("email", username);
+        body.put("user", userDto);
         body.put("message", "Login successful!");
 
         response.setContentType(CONTENT_TYPE);

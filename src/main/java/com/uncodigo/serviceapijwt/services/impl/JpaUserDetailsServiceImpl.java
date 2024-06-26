@@ -1,5 +1,6 @@
 package com.uncodigo.serviceapijwt.services.impl;
 
+import com.uncodigo.serviceapijwt.configs.security.CustomUserDetails;
 import com.uncodigo.serviceapijwt.models.User;
 import com.uncodigo.serviceapijwt.repositories.IUserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,14 +30,6 @@ public class JpaUserDetailsServiceImpl implements UserDetailsService {
 
         User user = userOptional.orElseThrow();
 
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getEmail())
-                .password(user.getPassword())
-                .disabled(!user.isEnabled())
-                .accountExpired(!user.isEnabled())
-                .accountLocked(!user.isEnabled())
-                .credentialsExpired(!user.isEnabled())
-                .authorities(user.getAuthorities())
-                .build();
+        return new CustomUserDetails(user);
     }
 }
