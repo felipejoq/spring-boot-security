@@ -1,6 +1,7 @@
 package com.uncodigo.serviceapijwt.configs.security;
 
 import com.uncodigo.serviceapijwt.configs.filters.JwtAuthenticationFilter;
+import com.uncodigo.serviceapijwt.configs.filters.JwtValidationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -42,6 +43,7 @@ public class SpringSecurityConfig {
                                         .anyRequest().authenticated()
                 )
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+                .addFilter(new JwtValidationFilter(authenticationManager()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(
                         sessionManagement ->

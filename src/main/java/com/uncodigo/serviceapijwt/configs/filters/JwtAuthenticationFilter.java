@@ -66,7 +66,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = Jwts.builder()
                 .subject(username)
-                .claim("authorities", authorities)
+                .claim("authorities", new ObjectMapper().writeValueAsString(authorities))
                 .signWith(SECRET_KEY)
                 .expiration(EXPIRATION_TIME)
                 .issuedAt(ISSUED_AT)
@@ -80,6 +80,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         body.put("message", "Login successful!");
 
         response.setContentType(CONTENT_TYPE);
+        response.setCharacterEncoding(CHAR_SET_UTF_8);
         response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + token);
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
         response.setStatus(HttpServletResponse.SC_OK);
@@ -95,6 +96,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         body.put("message", "Authentication failed!");
         body.put("error", failed.getMessage());
 
+        response.setCharacterEncoding(CHAR_SET_UTF_8);
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
         response.setContentType(CONTENT_TYPE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
