@@ -7,16 +7,13 @@ import com.uncodigo.serviceapijwt.models.User;
 import com.uncodigo.serviceapijwt.services.IUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -36,9 +33,16 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> createUser(UserRegisterDto userRegisterDto) {
-        log.info("Creating user");
-
-        return new ResponseEntity<>(userRegisterDto, HttpStatus.CREATED);
+    public ResponseEntity<?> createUser(@RequestBody UserRegisterDto userRegisterDto) {
+        try {
+            log.info("Creating user");
+            User userSaved = userService.save(userRegisterDto);
+            return new ResponseEntity<>(UserDto.fromUser(userSaved), HttpStatus.CREATED);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Error al crear el usuario");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 }

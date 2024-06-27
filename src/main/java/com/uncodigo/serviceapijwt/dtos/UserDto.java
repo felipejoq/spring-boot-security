@@ -1,5 +1,6 @@
 package com.uncodigo.serviceapijwt.dtos;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.uncodigo.serviceapijwt.models.Role;
 import com.uncodigo.serviceapijwt.models.User;
 import jakarta.validation.constraints.Email;
@@ -8,6 +9,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Collection;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
 
     private Integer id;
@@ -17,29 +19,35 @@ public class UserDto {
     @NotBlank
     @Email
     private String email;
-
     private boolean enabled;
-    
     private Collection<Role> roles;
+    private BankAccountDto bankAccount;
 
     public UserDto() {
     }
 
-    public UserDto(Integer id, String name, String email, boolean enabled, Collection<Role> roles) {
+    public UserDto(Integer id, String name, String email, boolean enabled, Collection<Role> roles, BankAccountDto bankAccount) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.enabled = enabled;
         this.roles = roles;
+        this.bankAccount = bankAccount;
     }
 
     public static UserDto fromUser(User user) {
+        BankAccountDto bankAccountDto = null;
+        if (user.getBankAccount() != null) {
+            bankAccountDto = BankAccountDto.fromBankAccount(user.getBankAccount());
+        }
         return new UserDto(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
                 user.isEnabled(),
-                user.getRoles());
+                user.getRoles(),
+                bankAccountDto
+        );
     }
 
     public Integer getId() {
@@ -80,5 +88,13 @@ public class UserDto {
 
     public void setRoles(Collection<Role> roles) {
         this.roles = roles;
+    }
+
+    public BankAccountDto getBankAccount() {
+        return bankAccount;
+    }
+
+    public void setBankAccount(BankAccountDto bankAccount) {
+        this.bankAccount = bankAccount;
     }
 }
