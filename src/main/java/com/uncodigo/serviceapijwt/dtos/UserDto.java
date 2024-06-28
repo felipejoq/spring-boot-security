@@ -21,32 +21,25 @@ public class UserDto {
     private String email;
     private boolean enabled;
     private Collection<Role> roles;
-    private BankAccountDto bankAccount;
 
     public UserDto() {
     }
 
-    public UserDto(Integer id, String name, String email, boolean enabled, Collection<Role> roles, BankAccountDto bankAccount) {
+    public UserDto(Integer id, String name, String email, boolean enabled, Collection<Role> roles) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.enabled = enabled;
         this.roles = roles;
-        this.bankAccount = bankAccount;
     }
 
     public static UserDto fromUser(User user) {
-        BankAccountDto bankAccountDto = null;
-        if (user.getBankAccount() != null) {
-            bankAccountDto = BankAccountDto.fromBankAccount(user.getBankAccount());
-        }
         return new UserDto(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
                 user.isEnabled(),
-                user.getRoles(),
-                bankAccountDto
+                user.getRoles()
         );
     }
 
@@ -88,13 +81,5 @@ public class UserDto {
 
     public void setRoles(Collection<Role> roles) {
         this.roles = roles;
-    }
-
-    public BankAccountDto getBankAccount() {
-        return bankAccount;
-    }
-
-    public void setBankAccount(BankAccountDto bankAccount) {
-        this.bankAccount = bankAccount;
     }
 }

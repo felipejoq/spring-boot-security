@@ -5,6 +5,7 @@ import com.uncodigo.serviceapijwt.utils.UniqueNumberGenerator;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 
@@ -33,7 +34,10 @@ public class BankAccount {
     private Currency currency;
 
     @OneToMany(mappedBy = "sender")
-    private Collection<Transaction> transaction;
+    private Collection<Transaction> sentTransactions;
+
+    @OneToMany(mappedBy = "receiver")
+    private Collection<Transaction> receivedTransactions;
 
     public BankAccount() {
     }
@@ -95,11 +99,16 @@ public class BankAccount {
     }
 
     public Collection<Transaction> getTransaction() {
+        // Combine sent and received transactions
+        Collection<Transaction> allTransactions = new ArrayList<>();
+        allTransactions.addAll(sentTransactions);
+        allTransactions.addAll(receivedTransactions);
         // Sort by date
-        return transaction.stream().sorted(Comparator.comparing(Transaction::getTransactionDate).reversed()).toList();
+        return allTransactions.stream().sorted(Comparator.comparing(Transaction::getTransactionDate).reversed()).toList();
     }
 
-    public void setTransaction(Collection<Transaction> transaction) {
-        this.transaction = transaction;
+    public void setTransactions(Collection<Transaction> sentTransactions, Collection<Transaction> receivedTransactions) {
+        this.sentTransactions = sentTransactions;
+        this.receivedTransactions = receivedTransactions;
     }
 }

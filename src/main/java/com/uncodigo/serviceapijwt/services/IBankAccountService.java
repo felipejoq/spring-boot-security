@@ -5,4 +5,5 @@ import com.uncodigo.serviceapijwt.models.User;
 
 public interface IBankAccountService {
     BankAccount createBankAccount(User user);
+    BankAccount getBankAccount(User user);
 }

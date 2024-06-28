@@ -8,6 +8,8 @@ import com.uncodigo.serviceapijwt.repositories.ICurrencyRepository;
 import com.uncodigo.serviceapijwt.services.IBankAccountService;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class BankAccountServiceImpl implements IBankAccountService {
 
@@ -27,5 +29,12 @@ public class BankAccountServiceImpl implements IBankAccountService {
         Currency currency = currencyRepository.findById(3L).orElse(null);
         bankAccount.setCurrency(currency);
         return bankAccountRepository.save(bankAccount);
+    }
+
+    @Override
+    public BankAccount getBankAccount(User user) {
+        // Si el usuario no tiene cuenta bancaria, se crea una nueva
+        Optional<BankAccount> optionalBankAccount = bankAccountRepository.findByOwner_Id(user.getId());
+        return optionalBankAccount.orElseGet(() -> createBankAccount(user));
     }
 }
