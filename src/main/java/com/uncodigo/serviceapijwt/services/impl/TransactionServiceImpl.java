@@ -1,6 +1,8 @@
 package com.uncodigo.serviceapijwt.services.impl;
 
+import com.uncodigo.serviceapijwt.dtos.PageResponseDto;
 import com.uncodigo.serviceapijwt.dtos.TransactionCreateDto;
+import com.uncodigo.serviceapijwt.dtos.TransactionDto;
 import com.uncodigo.serviceapijwt.dtos.TransferDto;
 import com.uncodigo.serviceapijwt.models.BankAccount;
 import com.uncodigo.serviceapijwt.models.Transaction;
@@ -8,12 +10,12 @@ import com.uncodigo.serviceapijwt.repositories.ITransactionRepository;
 import com.uncodigo.serviceapijwt.repositories.ITransactionTypeRepository;
 import com.uncodigo.serviceapijwt.services.IBankAccountService;
 import com.uncodigo.serviceapijwt.services.ITransactionService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class TransactionServiceImpl implements ITransactionService {
@@ -97,12 +99,17 @@ public class TransactionServiceImpl implements ITransactionService {
     }
 
     @Override
-    public Collection<Transaction> getTransactionsByUserEmail(String userEmail) {
+    public PageResponseDto<TransactionDto> getTransactionsByUserEmail(String userEmail, Pageable pageable) {
         BankAccount bankAccount = bankAccountService.findBankAccountByUserEmail(userEmail).orElse(null);
-        if (bankAccount != null) {
-            return transactionRepository.findTransactionsByAccountId(bankAccount.getId());
-        } else {
-            return List.of();
+        if (bankAccount == null) {
+            throw new IllegalArgumentException("Cuenta no encontrada");
         }
+
+        Page<Transaction> transactions = transactionRepository.findTransactionsByAccountId(bankAccount.getId(), pageable);
+
+        Page<TransactionDto> transactionDtos = transactions.map(TransactionDto::fromTransaction);
+
+        return new PageResponseDto<>(transactionDtos);
     }
+
 }

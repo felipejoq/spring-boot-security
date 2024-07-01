@@ -1,10 +1,12 @@
 package com.uncodigo.serviceapijwt.controllers;
 
+import com.uncodigo.serviceapijwt.dtos.BankAccountDto;
 import com.uncodigo.serviceapijwt.dtos.BankAccountWithTransactionsDto;
 import com.uncodigo.serviceapijwt.dtos.TransactionDto;
 import com.uncodigo.serviceapijwt.models.BankAccount;
 import com.uncodigo.serviceapijwt.models.User;
 import com.uncodigo.serviceapijwt.services.IBankAccountService;
+import com.uncodigo.serviceapijwt.services.ISecurityContextService;
 import com.uncodigo.serviceapijwt.services.IUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,37 +25,26 @@ public class BankAccountController {
     private static final Logger log = LoggerFactory.getLogger(BankAccountController.class);
     private final IBankAccountService bankAccountService;
     private final IUserService userService;
+    private final ISecurityContextService securityContextService;
 
-    public BankAccountController(IBankAccountService bankAccountService, IUserService userService) {
+    public BankAccountController(IBankAccountService bankAccountService, IUserService userService, ISecurityContextService securityContextService) {
         this.bankAccountService = bankAccountService;
         this.userService = userService;
+        this.securityContextService = securityContextService;
     }
 
     @GetMapping({"/", ""})
-    public BankAccountWithTransactionsDto getBankAccounts() {
-        // Obtener el nombre de usuario del token
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails)principal).getUsername();
-        } else {
-            username = principal.toString();
-        }
+    public BankAccountDto getBankAccounts() {
 
         // Buscar el usuario en la base de datos
-        User user = userService.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = securityContextService.getUserAuthenticated();
 
         // Obtener la cuenta bancaria del usuario
         BankAccount bankAccount = user.getBankAccount();
 
-        // Convertir las transacciones a DTOs
-        Collection<TransactionDto> transactionDtos = bankAccount.getTransaction().stream()
-                .map(TransactionDto::fromTransaction)
-                .toList();
-
-        log.info("Getting bank account for user: {}", username);
+        log.info("Getting bank account for user: {}", user.getEmail());
 
         // Devolver la cuenta bancaria
-        return BankAccountWithTransactionsDto.fromBankAccountAndTransactions(bankAccount, transactionDtos);
+        return BankAccountDto.fromBankAccount(bankAccount);
     }
 }

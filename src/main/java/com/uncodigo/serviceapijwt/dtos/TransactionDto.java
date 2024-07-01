@@ -12,15 +12,15 @@ public class TransactionDto {
     private BigDecimal total;
     @JsonProperty("transaction_date")
     private Date transactionDate;
-    private BankAccountDto sender;
-    private BankAccountDto receiver;
+    private String sender;
+    private String receiver;
     @JsonProperty("transaction_type")
     private TransactionType transactionType;
 
     public TransactionDto() {
     }
 
-    public TransactionDto(Integer id, BigDecimal total, Date transactionDate, BankAccountDto sender, BankAccountDto receiver, TransactionType transactionType) {
+    public TransactionDto(Integer id, BigDecimal total, Date transactionDate, String sender, String receiver, TransactionType transactionType) {
         this.id = id;
         this.total = total;
         this.transactionDate = transactionDate;
@@ -53,19 +53,19 @@ public class TransactionDto {
         this.transactionDate = transactionDate;
     }
 
-    public BankAccountDto getSender() {
+    public String getSender() {
         return sender;
     }
 
-    public void setSender(BankAccountDto sender) {
+    public void setSender(String sender) {
         this.sender = sender;
     }
 
-    public BankAccountDto getReceiver() {
+    public String getReceiver() {
         return receiver;
     }
 
-    public void setReceiver(BankAccountDto receiver) {
+    public void setReceiver(String receiver) {
         this.receiver = receiver;
     }
 
@@ -82,8 +82,8 @@ public class TransactionDto {
         dto.setId(transaction.getId());
         dto.setTotal(transaction.getTotal());
         dto.setTransactionDate(transaction.getTransactionDate());
-        dto.setSender(BankAccountDto.fromBankAccount(transaction.getSender()));
-        dto.setReceiver(transaction.getReceiver() != null ? BankAccountDto.fromBankAccount(transaction.getReceiver()) : null);
+        dto.setSender(transaction.getSender().getOwner().getEmail());
+        dto.setReceiver(transaction.getReceiver() != null ? transaction.getReceiver().getOwner().getEmail() : null);
         dto.setTransactionType(transaction.getTransactionType());
         return dto;
     }
