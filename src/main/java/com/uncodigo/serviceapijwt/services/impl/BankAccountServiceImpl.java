@@ -1,12 +1,12 @@
 package com.uncodigo.serviceapijwt.services.impl;
 
-import com.uncodigo.serviceapijwt.models.BankAccount;
-import com.uncodigo.serviceapijwt.models.Currency;
-import com.uncodigo.serviceapijwt.models.User;
+import com.uncodigo.serviceapijwt.models.*;
 import com.uncodigo.serviceapijwt.repositories.IBankAccountRepository;
 import com.uncodigo.serviceapijwt.repositories.ICurrencyRepository;
 import com.uncodigo.serviceapijwt.services.IBankAccountService;
+import com.uncodigo.serviceapijwt.types.TransactionTypes;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -36,5 +36,38 @@ public class BankAccountServiceImpl implements IBankAccountService {
         // Si el usuario no tiene cuenta bancaria, se crea una nueva
         Optional<BankAccount> optionalBankAccount = bankAccountRepository.findByOwner_Id(user.getId());
         return optionalBankAccount.orElseGet(() -> createBankAccount(user));
+    }
+
+    @Override
+    public Optional<BankAccount> findBankAccountByUserEmail(String userEmail) {
+        return bankAccountRepository.findByOwner_Email(userEmail);
+    }
+
+    @Override
+    @Transactional
+    public void addAmountToBalance(Transaction transaction) {
+        BankAccount sender = transaction.getSender();
+        if (sender != null) {
+            sender.setBalance(sender.getBalance().add(transaction.getTotal()));
+            bankAccountRepository.save(sender);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void subtractAmountFromBalance(Transaction transaction) {
+        BankAccount sender = transaction.getSender();
+        if (sender != null) {
+            sender.setBalance(sender.getBalance().subtract(transaction.getTotal()));
+            bankAccountRepository.save(sender);
+        }
+
+        if(transaction.getTransactionType().getId() == 1) {
+            BankAccount receiver = transaction.getReceiver();
+            if (receiver != null) {
+                receiver.setBalance(receiver.getBalance().add(transaction.getTotal()));
+                bankAccountRepository.save(receiver);
+            }
+        }
     }
 }
