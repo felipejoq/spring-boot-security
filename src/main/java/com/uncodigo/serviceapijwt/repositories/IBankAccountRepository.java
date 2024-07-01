@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface IBankAccountRepository extends JpaRepository<BankAccount, Integer> {
     Optional<BankAccount> findByOwner_Id(Integer id);
     Optional<BankAccount> findByAccountNumber(String accountNumber);
+    Optional<BankAccount> findByOwner_Email(String email);
 }
