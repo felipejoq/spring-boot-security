@@ -11,6 +11,6 @@ import org.springframework.data.domain.Pageable;
 public interface ITransactionService {
     void deposit(TransactionCreateDto transactionDto);
     void withdraw(TransactionCreateDto transactionDto);
-    void transfer(TransferDto transferDto);
+    void transfer(TransactionCreateDto transferDto);
     PageResponseDto<TransactionDto> getTransactionsByUserEmail(String userEmail, Pageable pageable);
 }
