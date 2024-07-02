@@ -3,7 +3,6 @@ package com.uncodigo.serviceapijwt.services.impl;
 import com.uncodigo.serviceapijwt.dtos.PageResponseDto;
 import com.uncodigo.serviceapijwt.dtos.TransactionCreateDto;
 import com.uncodigo.serviceapijwt.dtos.TransactionDto;
-import com.uncodigo.serviceapijwt.dtos.TransferDto;
 import com.uncodigo.serviceapijwt.models.BankAccount;
 import com.uncodigo.serviceapijwt.models.Transaction;
 import com.uncodigo.serviceapijwt.repositories.ITransactionRepository;
@@ -34,7 +33,7 @@ public class TransactionServiceImpl implements ITransactionService {
     @Override
     @Transactional
     public void deposit(TransactionCreateDto transactionDto) {
-        BankAccount bankAccount = bankAccountService.findBankAccountByUserEmail(transactionDto.getAccountEmail()).orElse(null);
+        BankAccount bankAccount = bankAccountService.findBankAccountByUserEmail(transactionDto.getAccountEmailSender()).orElse(null);
         Transaction transaction = new Transaction();
         transaction.setTransactionDate(new Date());
         transaction.setTransactionType(transactionTypeRepository.findById(2).orElse(null));
@@ -52,7 +51,7 @@ public class TransactionServiceImpl implements ITransactionService {
     @Override
     @Transactional
     public void withdraw(TransactionCreateDto transactionDto) {
-        BankAccount bankAccount = bankAccountService.findBankAccountByUserEmail(transactionDto.getAccountEmail()).orElse(null);
+        BankAccount bankAccount = bankAccountService.findBankAccountByUserEmail(transactionDto.getAccountEmailSender()).orElse(null);
 
         if (bankAccount != null && bankAccount.getBalance().compareTo(transactionDto.getAmount()) < 0) {
             throw new IllegalArgumentException("Fondos insuficientes");
@@ -74,9 +73,9 @@ public class TransactionServiceImpl implements ITransactionService {
 
     @Override
     @Transactional
-    public void transfer(TransferDto transferDto) {
-        BankAccount sender = bankAccountService.findBankAccountByUserEmail(transferDto.getSenderAccountEmail()).orElse(null);
-        BankAccount receiver = bankAccountService.findBankAccountByUserEmail(transferDto.getReceiverAccountEmail()).orElse(null);
+    public void transfer(TransactionCreateDto transferDto) {
+        BankAccount sender = bankAccountService.findBankAccountByUserEmail(transferDto.getAccountEmailSender()).orElse(null);
+        BankAccount receiver = bankAccountService.findBankAccountByUserEmail(transferDto.getAccountEmailReceiver()).orElse(null);
         if (sender == null) {
             throw new IllegalArgumentException("Cuenta de origen no encontrada");
         }
